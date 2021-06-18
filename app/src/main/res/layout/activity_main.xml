@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Activity.MainActivity">
+    <TextView
+        android:id="@+id/userInformationTV"
+        android:text="Welcome"
+        android:textSize="25sp"
+        android:layout_width="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_height="wrap_content"/>
+    <Button
+        android:id="@+id/logoutBTN"
+        android:layout_width="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:text="Log out"
+        android:layout_above="@id/chatRecyclerView"
+        android:layout_height="wrap_content"/>
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/chatRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_below="@id/userInformationTV"
+        android:layout_marginTop="5sp"
+        android:layout_above="@id/addMessageLayout"
+        android:layout_height="match_parent"
+        />
+
+    <LinearLayout
+        android:id="@+id/addMessageLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:layout_alignParentBottom="true"
+        android:weightSum="2"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/inputEDT"
+            android:layout_weight="1.9"
+            android:hint="Type message"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent" />
+
+        <Button
+            android:id="@+id/inputBTN"
+            android:text="Confirm"
+            android:layout_weight="0.25"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+</RelativeLayout>
