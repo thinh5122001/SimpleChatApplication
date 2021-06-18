@@ -2,6 +2,7 @@ package com.example.chatapplication.Activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.PersistableBundle;
 import android.util.Log;
 import android.view.View;
@@ -40,8 +41,8 @@ public class SignInActivity extends AppCompatActivity {
     private FirebaseAuth firebaseAuth;
     private static final String TAG = "GOOGLE_SIGN_IN_TAG";
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState, @Nullable PersistableBundle persistentState) {
-        super.onCreate(savedInstanceState, persistentState);
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         setContentView(com.example.chatapplication.R.layout.sign_in_layout);
         Mapping();
 
@@ -50,7 +51,7 @@ public class SignInActivity extends AppCompatActivity {
                 .requestIdToken(getString(com.example.chatapplication.R.string.default_web_client_id))
                 .build();
 
-        googleSignInClient = GoogleSignIn.getClient(this,googleSignInOptions);
+        googleSignInClient = GoogleSignIn.getClient(this, googleSignInOptions);
 
         //init firebase auth
         firebaseAuth = FirebaseAuth.getInstance();
@@ -60,9 +61,9 @@ public class SignInActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // begin google sign in
-                Log.d(TAG,"begin google signIn");
+                Log.d(TAG, "begin google signIn");
                 Intent intent = googleSignInClient.getSignInIntent();
-                startActivityForResult(intent,RC_SIGN_IN);
+                startActivityForResult(intent, RC_SIGN_IN);
             }
         });
     }
@@ -70,10 +71,9 @@ public class SignInActivity extends AppCompatActivity {
     private void checkUser() {
         //if user is already signed in then go to main activity
         FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
-        if(firebaseUser != null)
-        {
+        if (firebaseUser != null) {
             Log.d(TAG, "checkUser: Already logged in");
-            startActivity(new Intent(this,MainActivity.class));
+            startActivity(new Intent(this, MainActivity.class));
             finish();
         }
     }
@@ -82,25 +82,23 @@ public class SignInActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable @org.jetbrains.annotations.Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if(requestCode == RC_SIGN_IN)
-        {
-            Log.d(TAG,"on ActivityResult: Google SignIn intent result");
+        if (requestCode == RC_SIGN_IN) {
+            Log.d(TAG, "on ActivityResult: Google SignIn intent result");
             Task<GoogleSignInAccount> accountTask = GoogleSignIn.getSignedInAccountFromIntent(data);
             try {
                 //Google sign in success
                 GoogleSignInAccount account = accountTask.getResult(ApiException.class);
 
                 firebaseAuthWithGoogleAccount(account);
-            }
-            catch (Exception e){
-                Log.d(TAG,"onActivityResult:"+e.getMessage());
+            } catch (Exception e) {
+                Log.d(TAG, "onActivityResult:" + e.getMessage());
             }
         }
     }
 
     private void firebaseAuthWithGoogleAccount(GoogleSignInAccount account) {
         Log.d(TAG, "firebaseAuthWithGoogleAccount: begin firebase auth with google account");
-        AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(),null);
+        AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
         firebaseAuth.signInWithCredential(credential)
                 .addOnSuccessListener(new OnSuccessListener<AuthResult>() {
                     @Override
@@ -113,18 +111,17 @@ public class SignInActivity extends AppCompatActivity {
                         String uid = firebaseUser.getUid();
                         String email = firebaseUser.getEmail();
 
-                        Log.d(TAG, "onSuccess: Email: "+ email);
-                        Log.d(TAG, "onSuccess: UID: "+ uid);
+                        Log.d(TAG, "onSuccess: Email: " + email);
+                        Log.d(TAG, "onSuccess: UID: " + uid);
                         //check if user is new or existing
-                        if(authResult.getAdditionalUserInfo().isNewUser()){
+                        if (authResult.getAdditionalUserInfo().isNewUser()) {
                             //user is new
-                            Toast.makeText(SignInActivity.this,"Account created...\n"+email,Toast.LENGTH_SHORT).show();
+                            Toast.makeText(SignInActivity.this, "Account created...\n" + email, Toast.LENGTH_SHORT).show();
                             Log.d(TAG, "onSuccess: Account created...\n");
-                        }
-                        else {
+                        } else {
                             //existed user --Logged in
-                            Log.d(TAG, "onSuccess: ExistingUser\n"+email);
-                            Toast.makeText(SignInActivity.this,"Existing user...\n"+email,Toast.LENGTH_SHORT).show();
+                            Log.d(TAG, "onSuccess: ExistingUser\n" + email);
+                            Toast.makeText(SignInActivity.this, "Existing user...\n" + email, Toast.LENGTH_SHORT).show();
                         }
                         //start profile activity
                         startActivity(new Intent(SignInActivity.this, MainActivity.class));
@@ -134,13 +131,12 @@ public class SignInActivity extends AppCompatActivity {
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull @NotNull Exception e) {
-                        Log.d(TAG, "onFailure: Log in fail" +e.getMessage());
+                        Log.d(TAG, "onFailure: Log in fail" + e.getMessage());
                     }
                 });
     }
 
-    private void Mapping()
-    {
+    private void Mapping() {
         signInButton = findViewById(com.example.chatapplication.R.id.googleSignInButton);
     }
 }

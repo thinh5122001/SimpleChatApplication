@@ -38,7 +38,8 @@ import java.util.Collections;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-    private FirebaseAuth firebaseAuth;
+    private static final String CHANNEL_NAME ="chat_application";
+    private static final String EVENT_NAME ="new-message";
     private RecyclerView.LayoutManager layoutManager;
     private RecyclerView recyclerView;
     private MessageAdapter messageAdapter;
@@ -53,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Mapping();
-        //checkUser();
+
         recyclerView.setLayoutManager(layoutManager);
         List<MessageModel> messageList = new ArrayList<>();
         messageAdapter = new MessageAdapter(messageList);
@@ -63,9 +64,9 @@ public class MainActivity extends AppCompatActivity {
         options.setCluster("ap1");
         pusher = new Pusher("ec03aaca0773f446aab4", options);
 
-        channel = pusher.subscribe("chat_application");
+        channel = pusher.subscribe(CHANNEL_NAME);
 
-        channel.bind("new-message", new SubscriptionEventListener() {
+        channel.bind(EVENT_NAME, new SubscriptionEventListener() {
             @Override
             public void onEvent(PusherEvent event) {
                 runOnUiThread(new Runnable() {
@@ -127,33 +128,5 @@ public class MainActivity extends AppCompatActivity {
        messageAdapter.addMessage(messageModel);
 
        inputEDT.setText("");
-    }
-    private void GetFirebaseInstance()
-    {
-        firebaseAuth = FirebaseAuth.getInstance();
-        checkUser();
-    }
-
-    private void checkUser() {
-        //get current user
-        FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
-        if(firebaseUser != null)
-        {
-            //user not logged in
-            startActivity(new Intent(this,SignInActivity.class));
-            finish();
-        }
-        else {
-            //user logged in
-            String displayName = firebaseUser.getDisplayName();
-            userInformationTextView.setText(displayName);
-            logoutBTN.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    firebaseAuth.signOut();
-                    checkUser();
-                }
-            });
-        }
     }
 }
