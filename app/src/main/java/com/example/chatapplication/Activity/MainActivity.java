@@ -1,26 +1,20 @@
 package com.example.chatapplication.Activity;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.chatapplication.Adapter.MessageAdapter;
 import com.example.chatapplication.Model.MessageModel;
 import com.example.chatapplication.R;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.gson.Gson;
 import com.pusher.client.Pusher;
 import com.pusher.client.PusherOptions;
 import com.pusher.client.channel.Channel;
@@ -34,7 +28,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -48,18 +41,21 @@ public class MainActivity extends AppCompatActivity {
     private Pusher pusher;
     private Channel channel;
     private Button logoutBTN;
+    private String userName;
     private TextView userInformationTextView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Mapping();
-
+        GetDataFromPreActivity();
+        SetUsername();
         recyclerView.setLayoutManager(layoutManager);
         List<MessageModel> messageList = new ArrayList<>();
         messageAdapter = new MessageAdapter(messageList);
         recyclerView.setAdapter(messageAdapter);
         inputBTN.setOnClickListener(this::ButtonClick);
+        logoutBTN.setOnClickListener(this::LogOutButton_Click);
         PusherOptions options = new PusherOptions();
         options.setCluster("ap1");
         pusher = new Pusher("ec03aaca0773f446aab4", options);
@@ -74,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
                     public void run() {
 
                         try {
+
                             JSONObject jsonObject = new JSONObject(event.getData());
                             Log.d("json return", jsonObject.toString());
                             String content = jsonObject.getString("data");
@@ -108,7 +105,14 @@ public class MainActivity extends AppCompatActivity {
             }
         }, ConnectionState.ALL);
     }
-
+    private void GetDataFromPreActivity()
+    {
+        userName = getIntent().getStringExtra("userName");
+    }
+    private void SetUsername()
+    {
+        userInformationTextView.setText("Hello"+ userName);
+    }
     private void Mapping()
     {
         recyclerView = findViewById(R.id.chatRecyclerView);
@@ -128,5 +132,11 @@ public class MainActivity extends AppCompatActivity {
        messageAdapter.addMessage(messageModel);
 
        inputEDT.setText("");
+    }
+    private void LogOutButton_Click(View view)
+    {
+        Intent intent = new Intent(this,SignInActivity.class);
+        startActivity(intent);
+        finish();
     }
 }

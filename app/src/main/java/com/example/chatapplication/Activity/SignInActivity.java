@@ -72,8 +72,12 @@ public class SignInActivity extends AppCompatActivity {
         //if user is already signed in then go to main activity
         FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
         if (firebaseUser != null) {
+            Intent intent = new Intent(this, MainActivity.class);
             Log.d(TAG, "checkUser: Already logged in");
-            startActivity(new Intent(this, MainActivity.class));
+            String userName = firebaseUser.getDisplayName();
+            intent.putExtra("userName",userName);
+            startActivity(intent);
+            SignOut();
             finish();
         }
     }
@@ -110,23 +114,24 @@ public class SignInActivity extends AppCompatActivity {
                         //get user info
                         String uid = firebaseUser.getUid();
                         String email = firebaseUser.getEmail();
-
+                        Log.d(TAG, "onSuccess: email is" + email);
                         Log.d(TAG, "onSuccess: Email: " + email);
                         Log.d(TAG, "onSuccess: UID: " + uid);
-                        //check if user is new or existing
-                        if (authResult.getAdditionalUserInfo().isNewUser()) {
-                            //user is new
-                            Toast.makeText(SignInActivity.this, "Account created...\n" + email, Toast.LENGTH_SHORT).show();
-                            Log.d(TAG, "onSuccess: Account created...\n");
-                        } else {
-                            //existed user --Logged in
-                            Log.d(TAG, "onSuccess: ExistingUser\n" + email);
-                            Toast.makeText(SignInActivity.this, "Existing user...\n" + email, Toast.LENGTH_SHORT).show();
+                            //check if user is new or existing
+                            if (authResult.getAdditionalUserInfo().isNewUser()) {
+                                //user is new
+                                Toast.makeText(SignInActivity.this, "Account created...\n" + email, Toast.LENGTH_SHORT).show();
+                                Log.d(TAG, "onSuccess: Account created...\n");
+                            } else {
+                                //existed user --Logged in
+                                Log.d(TAG, "onSuccess: ExistingUser\n" + email);
+                                Toast.makeText(SignInActivity.this, "Existing user...\n" + email, Toast.LENGTH_SHORT).show();
+                            }
+                            //start profile activity
+                            startActivity(new Intent(SignInActivity.this, MainActivity.class));
+                            finish();
                         }
-                        //start profile activity
-                        startActivity(new Intent(SignInActivity.this, MainActivity.class));
-                        finish();
-                    }
+
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
@@ -138,5 +143,9 @@ public class SignInActivity extends AppCompatActivity {
 
     private void Mapping() {
         signInButton = findViewById(com.example.chatapplication.R.id.googleSignInButton);
+    }
+
+    private void SignOut(){
+        firebaseAuth.signOut();
     }
 }
