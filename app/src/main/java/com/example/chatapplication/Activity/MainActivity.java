@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.chatapplication.Adapter.MessageAdapter;
 import com.example.chatapplication.Model.MessageModel;
 import com.example.chatapplication.R;
+import com.example.chatapplication.SendToServerHandler;
 import com.pusher.client.Pusher;
 import com.pusher.client.PusherOptions;
 import com.pusher.client.channel.Channel;
@@ -124,14 +125,15 @@ public class MainActivity extends AppCompatActivity {
     }
     private void ButtonClick( View view )
     {
-       String content = inputEDT.getText().toString();
-       Log.d("content:  ", content);
-       MessageModel messageModel = new MessageModel(content);
-       messageModel.setTextContent(content);
+        String content = inputEDT.getText().toString();
+        Log.d("content:  ", content);
+        MessageModel messageModel = new MessageModel(content);
+        messageModel.setTextContent(content);
+        SendToServerHandler sendToServerHandler = new SendToServerHandler();
+        sendToServerHandler.SendToPusherServer(content);
+        messageAdapter.addMessage(messageModel);
 
-       messageAdapter.addMessage(messageModel);
-
-       inputEDT.setText("");
+        inputEDT.setText("");
     }
     private void LogOutButton_Click(View view)
     {
