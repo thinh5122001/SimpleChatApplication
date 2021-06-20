@@ -6,6 +6,16 @@ public class MessageModel {
     private String time;
     private ImageView avatarIMG;
     private String textContent;
+    private String userName = "";
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
     public MessageModel(String content)
     {
         this.textContent = content;

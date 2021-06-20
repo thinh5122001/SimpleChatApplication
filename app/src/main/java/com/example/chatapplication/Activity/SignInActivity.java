@@ -30,122 +30,80 @@ import com.google.firebase.auth.GoogleAuthProvider;
 
 import org.jetbrains.annotations.NotNull;
 
+import static android.content.ContentValues.TAG;
 import static android.os.Build.VERSION_CODES.R;
 
 public class SignInActivity extends AppCompatActivity {
-    private static final int RC_SIGN_IN = 100;
-
-    private ActivityMainBinding binding;
-    private GoogleSignInClient googleSignInClient;
-    SignInButton signInButton;
-    private FirebaseAuth firebaseAuth;
-    private static final String TAG = "GOOGLE_SIGN_IN_TAG";
+    private SignInButton signInButton;
+    private GoogleSignInClient mGoogleSignInClient;
+    private static final String TAG = "SignInActivity return";
+    private final int RC_SIGN_IN = 100;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(com.example.chatapplication.R.layout.sign_in_layout);
         Mapping();
-
-        //configure the google sign in
-        GoogleSignInOptions googleSignInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(com.example.chatapplication.R.string.default_web_client_id))
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
                 .build();
-
-        googleSignInClient = GoogleSignIn.getClient(this, googleSignInOptions);
-
-        //init firebase auth
-        firebaseAuth = FirebaseAuth.getInstance();
-        checkUser();
-        //Google SignInButton: Click to begin Google SignIn
+        // Build a GoogleSignInClient with the options specified by gso.
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+        // Check for existing Google Sign In account, if the user is already signed in
+        // the GoogleSignInAccount will be non-null.
+        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
         signInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // begin google sign in
-                Log.d(TAG, "begin google signIn");
-                Intent intent = googleSignInClient.getSignInIntent();
-                startActivityForResult(intent, RC_SIGN_IN);
+                switch (v.getId()) {
+                    case com.example.chatapplication.R.id.googleSignInButton:
+                        signIn();
+                        signOut();
+                        break;
+                }
             }
         });
     }
 
-    private void checkUser() {
-        //if user is already signed in then go to main activity
-        FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
-        if (firebaseUser != null) {
-            Intent intent = new Intent(this, MainActivity.class);
-            Log.d(TAG, "checkUser: Already logged in");
-            String userName = firebaseUser.getDisplayName();
-            intent.putExtra("userName",userName);
-            startActivity(intent);
-            SignOut();
-            finish();
-        }
+    private void signIn() {
+        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+        startActivityForResult(signInIntent, RC_SIGN_IN);
     }
-
+    public void signOut(){
+        mGoogleSignInClient.signOut();
+    }
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable @org.jetbrains.annotations.Nullable Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
+        // Result returned from launching the Intent from GoogleSignInClient.getSignInIntent(...);
         if (requestCode == RC_SIGN_IN) {
-            Log.d(TAG, "on ActivityResult: Google SignIn intent result");
-            Task<GoogleSignInAccount> accountTask = GoogleSignIn.getSignedInAccountFromIntent(data);
-            try {
-                //Google sign in success
-                GoogleSignInAccount account = accountTask.getResult(ApiException.class);
-
-                firebaseAuthWithGoogleAccount(account);
-            } catch (Exception e) {
-                Log.d(TAG, "onActivityResult:" + e.getMessage());
-            }
+            // The Task returned from this call is always completed, no need to attach
+            // a listener.
+            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+            handleSignInResult(task);
         }
     }
 
-    private void firebaseAuthWithGoogleAccount(GoogleSignInAccount account) {
-        Log.d(TAG, "firebaseAuthWithGoogleAccount: begin firebase auth with google account");
-        AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
-        firebaseAuth.signInWithCredential(credential)
-                .addOnSuccessListener(new OnSuccessListener<AuthResult>() {
-                    @Override
-                    public void onSuccess(AuthResult authResult) {
-                        Log.d(TAG, "onSuccess: Logged In");
+    private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
+        try {
+            GoogleSignInAccount account = completedTask.getResult(ApiException.class);
+            String email = account.getEmail();
 
-                        //get logged in user
-                        FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
-                        //get user info
-                        String uid = firebaseUser.getUid();
-                        String email = firebaseUser.getEmail();
-                        Log.d(TAG, "onSuccess: email is" + email);
-                        Log.d(TAG, "onSuccess: Email: " + email);
-                        Log.d(TAG, "onSuccess: UID: " + uid);
-                            //check if user is new or existing
-                            if (authResult.getAdditionalUserInfo().isNewUser()) {
-                                //user is new
-                                Toast.makeText(SignInActivity.this, "Account created...\n" + email, Toast.LENGTH_SHORT).show();
-                                Log.d(TAG, "onSuccess: Account created...\n");
-                            } else {
-                                //existed user --Logged in
-                                Log.d(TAG, "onSuccess: ExistingUser\n" + email);
-                                Toast.makeText(SignInActivity.this, "Existing user...\n" + email, Toast.LENGTH_SHORT).show();
-                            }
-                            //start profile activity
-                            startActivity(new Intent(SignInActivity.this, MainActivity.class));
-                            finish();
-                        }
+            Log.d(TAG, "handleSignInResult: " + account.getEmail());
+            // Signed in successfully, show authenticated UI.
+            Intent intent = new Intent(this,MainActivity.class);
+            intent.putExtra("displayName",email);
+            startActivity(intent);
+        } catch (ApiException e) {
+            // The ApiException status code indicates the detailed failure reason.
+            // Please refer to the GoogleSignInStatusCodes class reference for more information.
+            Log.w(TAG, "signInResult:failed code=" + e.getStatusCode());
 
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull @NotNull Exception e) {
-                        Log.d(TAG, "onFailure: Log in fail" + e.getMessage());
-                    }
-                });
+        }
     }
 
-    private void Mapping() {
+    private void Mapping()
+    {
         signInButton = findViewById(com.example.chatapplication.R.id.googleSignInButton);
-    }
-
-    private void SignOut(){
-        firebaseAuth.signOut();
     }
 }

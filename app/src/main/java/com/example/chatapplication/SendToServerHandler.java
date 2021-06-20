@@ -2,6 +2,7 @@ package com.example.chatapplication;
 
 import android.util.Log;
 
+import com.example.chatapplication.Model.MessageModel;
 import com.pusher.rest.Pusher;
 
 import org.json.JSONException;
@@ -16,14 +17,14 @@ public class SendToServerHandler {
     private static final String PUSHER_EVENT = "new-message";
     Pusher pusher;
 
-    public void SendToPusherServer(String content)
+    public void SendToPusherServer(MessageModel messageModel)
     {
         SetUpPusher();
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
 
-                pusher.trigger(PUSHER_CHANNEL,PUSHER_EVENT,content);
+                pusher.trigger(PUSHER_CHANNEL,PUSHER_EVENT,messageModel);
             }
         });
         thread.start();

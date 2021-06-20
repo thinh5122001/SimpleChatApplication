@@ -62,18 +62,23 @@ public class MainActivity extends AppCompatActivity {
         pusher = new Pusher("ec03aaca0773f446aab4", options);
 
         channel = pusher.subscribe(CHANNEL_NAME);
-
         channel.bind(EVENT_NAME, new SubscriptionEventListener() {
             @Override
             public void onEvent(PusherEvent event) {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        String content = event.getData();
-                        Log.d("json return new event", "run: "+content);
-                        MessageModel message = new MessageModel(content);
-                        message.setTextContent(content);
-                        messageAdapter.addMessage(message);
+                        try {
+                            JSONObject jsonObject = new JSONObject(event.getData());
+                            String textContent = jsonObject.getString("textContent");
+                            String currentUserName = jsonObject.getString("userName");
+                            MessageModel message = new MessageModel(textContent);
+                            message.setUserName(currentUserName);
+                            message.setTextContent(textContent);
+                            messageAdapter.addMessage(message);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
                         }
                 });
             }
@@ -99,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
     }
     private void GetDataFromPreActivity()
     {
-        userName = getIntent().getStringExtra("userName");
+        userName = getIntent().getStringExtra("displayName");
     }
     private void SetUsername()
     {
@@ -118,9 +123,10 @@ public class MainActivity extends AppCompatActivity {
     {
         String content = inputEDT.getText().toString();
         Log.d("content:  ", content);
-        content = replaceQuotes(content);
+        MessageModel messageModel = new MessageModel(content);
+        messageModel.setUserName(userName);
         SendToServerHandler sendToServerHandler = new SendToServerHandler();
-        sendToServerHandler.SendToPusherServer(content);
+        sendToServerHandler.SendToPusherServer(messageModel);
         inputEDT.setText("");
     }
     private void LogOutButton_Click(View view)
@@ -128,11 +134,5 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this,SignInActivity.class);
         startActivity(intent);
         finish();
-    }
-    private String replaceQuotes(String stringToBeReplaced)
-    {
-
-        stringToBeReplaced.replaceAll("^[\"']+|[\"' ] + $ \n \t \"", "");
-        return  stringToBeReplaced;
     }
 }
