@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
         List<MessageModel> messageList = new ArrayList<>();
         messageAdapter = new MessageAdapter(messageList);
         recyclerView.setAdapter(messageAdapter);
-        inputBTN.setOnClickListener(this::ButtonClick);
+        inputBTN.setOnClickListener(this::InputBtn_Click);
         logoutBTN.setOnClickListener(this::LogOutButton_Click);
         PusherOptions options = new PusherOptions();
         options.setCluster("ap1");
@@ -69,22 +69,13 @@ public class MainActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-
-                        try {
-
-                            JSONObject jsonObject = new JSONObject(event.getData());
-                            Log.d("json return", jsonObject.toString());
-                            String content = jsonObject.getString("data");
-                            Log.d("content", content);
-                            MessageModel message = new MessageModel(content);
-                            message.setTextContent(content);
-                            messageAdapter.addMessage(message);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
+                        String content = event.getData();
+                        Log.d("json return new event", "run: "+content);
+                        MessageModel message = new MessageModel(content);
+                        message.setTextContent(content);
+                        messageAdapter.addMessage(message);
                         }
-                    }
                 });
-
             }
         });
 
@@ -123,16 +114,13 @@ public class MainActivity extends AppCompatActivity {
         userInformationTextView = findViewById(R.id.userInformationTV);
         logoutBTN = findViewById(R.id.logoutBTN);
     }
-    private void ButtonClick( View view )
+    private void InputBtn_Click( View view )
     {
         String content = inputEDT.getText().toString();
         Log.d("content:  ", content);
-        MessageModel messageModel = new MessageModel(content);
-        messageModel.setTextContent(content);
+        content = replaceQuotes(content);
         SendToServerHandler sendToServerHandler = new SendToServerHandler();
         sendToServerHandler.SendToPusherServer(content);
-        messageAdapter.addMessage(messageModel);
-
         inputEDT.setText("");
     }
     private void LogOutButton_Click(View view)
@@ -140,5 +128,11 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this,SignInActivity.class);
         startActivity(intent);
         finish();
+    }
+    private String replaceQuotes(String stringToBeReplaced)
+    {
+
+        stringToBeReplaced.replaceAll("^[\"']+|[\"' ] + $ \n \t \"", "");
+        return  stringToBeReplaced;
     }
 }

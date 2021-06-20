@@ -17,9 +17,16 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/message_background"
+            android:background="@drawable/server_message_background"
 
             android:layout_below="@id/timeTV">
+
+            <ImageView
+                android:id="@+id/avatarIMG"
+
+                android:layout_width="30sp"
+                android:layout_height="match_parent"
+                android:background="@drawable/ic_man" />
 
             <TextView
                 android:id="@+id/textContentTV"
@@ -31,14 +38,6 @@
                 android:layout_toRightOf="@id/avatarIMG"
                 android:textColor="@color/white"
                 android:text="Hi" />
-            <ImageView
-                android:id="@+id/avatarIMG"
-
-                android:layout_width="30sp"
-                android:layout_height="match_parent"
-                android:background="@drawable/ic_man" />
-
-
         </LinearLayout>
     </RelativeLayout>
 

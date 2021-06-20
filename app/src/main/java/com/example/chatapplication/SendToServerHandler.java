@@ -22,15 +22,8 @@ public class SendToServerHandler {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                String jsonFormat = "{data: "+content+"}";
-                try {
-                    JSONObject jsonObject = new JSONObject(jsonFormat);
 
-                    Log.d("json return", "run: "+jsonObject.toString());
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                pusher.trigger(PUSHER_CHANNEL,PUSHER_EVENT,jsonFormat);
+                pusher.trigger(PUSHER_CHANNEL,PUSHER_EVENT,content);
             }
         });
         thread.start();

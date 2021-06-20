@@ -1,6 +1,5 @@
 package com.example.chatapplication.Adapter;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,7 +36,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
     @Override
     public ViewHolder onCreateViewHolder( ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.message_layout, parent, false);
+                    .inflate(R.layout.server_message_layout, parent, false);
         return new ViewHolder(itemView);
 
 
