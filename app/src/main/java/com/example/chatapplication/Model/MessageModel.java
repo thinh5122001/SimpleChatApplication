@@ -6,6 +6,7 @@ public class MessageModel {
     private String time;
     private ImageView avatarIMG;
     private String textContent;
+    private Boolean isUserResponse;
     private String userName = "";
 
     public Boolean getUserResponse() {
@@ -16,7 +17,7 @@ public class MessageModel {
         isUserResponse = userResponse;
     }
 
-    private Boolean isUserResponse;
+
     public String getUserName() {
         return userName;
     }
