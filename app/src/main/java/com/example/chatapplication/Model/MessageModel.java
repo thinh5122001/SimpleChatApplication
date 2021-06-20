@@ -8,6 +8,15 @@ public class MessageModel {
     private String textContent;
     private String userName = "";
 
+    public Boolean getUserResponse() {
+        return isUserResponse;
+    }
+
+    public void setUserResponse(Boolean userResponse) {
+        isUserResponse = userResponse;
+    }
+
+    private Boolean isUserResponse;
     public String getUserName() {
         return userName;
     }

@@ -73,6 +73,16 @@ public class MainActivity extends AppCompatActivity {
                             String textContent = jsonObject.getString("textContent");
                             String currentUserName = jsonObject.getString("userName");
                             MessageModel message = new MessageModel(textContent);
+
+                            if(currentUserName.equals(userName))
+                            {
+                                message.setUserResponse(true);
+                            }
+                            else
+                            {
+                                message.setUserResponse(false);
+                            }
+
                             message.setUserName(currentUserName);
                             message.setTextContent(textContent);
                             messageAdapter.addMessage(message);

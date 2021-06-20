@@ -58,7 +58,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
         String userName = message.getUserName();
 
         Log.d("userName", "getItemViewType: "+userName);
-        if(userName.equals("19522281@gm.uit.edu.vn"))
+        if(message.getUserResponse())
         {
             return MSG_TYPE_USER_MESSAGE;
         }
